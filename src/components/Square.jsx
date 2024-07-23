@@ -1,21 +1,30 @@
-export default function Square({ children, hasBomb }) {
-  function handleLeftClick() {
-    console.log("left click");
-  }
-
-  function handleRightClick() {
-    console.log("right click");
-  }
-
+export default function Square({
+  children,
+  hasBomb,
+  exposed,
+  flagged,
+  handleExposure,
+  handleFlag,
+}) {
   return (
-    <div
-      className="square"
-      onClick={handleLeftClick}
-      onAuxClick={handleRightClick}
-      onContextMenu={(e) => e.preventDefault()}
-      style={{ background: hasBomb ? "black" : "white" }}
-    >
-      {children}
-    </div>
+    <>
+      <div className="cover" />
+      <div
+        className="square"
+        onClick={() => handleExposure()}
+        onAuxClick={() => handleFlag()}
+        onContextMenu={(e) => e.preventDefault()}
+        style={{ background: hasBomb ? "black" : "white" }}
+      >
+        <div
+          className="cover"
+          style={{
+            // background: flagged ? "red" : "green",
+            zIndex: exposed ? "-1" : "1",
+          }}
+        />
+        {children}
+      </div>
+    </>
   );
 }

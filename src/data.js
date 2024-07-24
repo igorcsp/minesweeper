@@ -15,3 +15,5 @@ const field = {
     squaresEasy: 64, // 8
     bombedSquareEasy: 10,
 }
+
+// 🚩 💣

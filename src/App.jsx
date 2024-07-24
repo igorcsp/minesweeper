@@ -3,6 +3,13 @@ import Field from "./components/Field";
 import Header from "./components/Header";
 import Square from "./components/Square";
 
+/*
+  To do:
+  - Criar condição de vitória e derrota
+  - Arrumar a flag para desabilitar a possibilidade de expor o campo, quando flagged === true
+  - Deixar com um CSS bonitin
+*/
+
 function App() {
   const [field, setField] = useState([]);
   const [difficulty, setDifficulty] = useState({
@@ -44,7 +51,7 @@ function App() {
       const squareObj = {
         id: i,
         hasBomb: bombedSquaresArr[i],
-        bombsAround: "", // number > essa aqui é foda
+        bombsAround: "",
         exposed: arrayOfFalses[i],
         flagged: arrayOfFalses[i],
       };
@@ -57,18 +64,65 @@ function App() {
     setDifficulty(difficultyObject);
   };
 
-  const handleExposure = (id) => {
-    setField((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, exposed: true } : item))
-    );
-  };
-
   const handleFlag = (id) => {
     setField((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, flagged: !item.flagged } : item
       )
     );
+  };
+
+  const handleExposure = (id) => {
+    exposeSquaresWithoutBombs(id);
+  };
+
+  const exposeSquaresWithoutBombs = (id) => {
+    const width = Math.sqrt(difficulty.squares);
+
+    const recursiveExpose = (squareId, fieldCopy) => {
+      const neighbors = getNeighbors(squareId, width);
+
+      fieldCopy[squareId].exposed = true;
+
+      if (fieldCopy[squareId].bombsAround === "") {
+        neighbors.forEach((neighborId) => {
+          if (
+            !fieldCopy[neighborId].exposed &&
+            !fieldCopy[neighborId].hasBomb
+          ) {
+            recursiveExpose(neighborId, fieldCopy);
+          }
+        });
+      }
+
+      return fieldCopy;
+    };
+
+    setField((prevField) => {
+      const newField = [...prevField];
+      return recursiveExpose(id, newField);
+    });
+  };
+
+  const getNeighbors = (id, width) => {
+    const row = Math.floor(id / width);
+    const col = id % width;
+    const neighbors = [];
+
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        if (i === 0 && j === 0) continue;
+        const newRow = row + i;
+        const newCol = col + j;
+
+        if (newRow >= 0 && newRow < width && newCol >= 0 && newCol < width) {
+          const neighborId = newRow * width + newCol;
+          neighbors.push(neighborId);
+        }
+      }
+    }
+
+    return neighbors;
   };
 
   const numberOfBombsAround = (field) => {
@@ -78,30 +132,18 @@ function App() {
       if (square.hasBomb) return square;
 
       let count = 0;
-      const row = Math.floor(square.id / width);
-      const col = square.id % width;
-
-      for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
-          if (i === 0 && j === 0) continue;
-
-          const newRow = row + i;
-          const newCol = col + j;
-
-          if (newRow >= 0 && newRow < width && newCol >= 0 && newCol < width) {
-            const neighborId = newRow * width + newCol;
-            if (field[neighborId].hasBomb) {
-              count++;
-            }
-          }
+      const neighbors = getNeighbors(square.id, width);
+      neighbors.forEach((neighborId) => {
+        if (field[neighborId].hasBomb) {
+          count++;
         }
-      }
+      });
 
-      return { ...square, bombsAround: count };
+      return count === 0
+        ? { ...square, bombsAround: "" }
+        : { ...square, bombsAround: count };
     });
   };
-
-  console.log(field);
 
   return (
     <div className="app">
@@ -117,7 +159,7 @@ function App() {
             handleExposure={() => handleExposure(item.id)}
             handleFlag={() => handleFlag(item.id)}
           >
-            {item.bombsAround}
+            {item.hasBomb ? "💣" : item.bombsAround}
           </Square>
         ))}
       </Field>

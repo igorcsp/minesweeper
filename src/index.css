@@ -1,3 +1,7 @@
+body {
+  background-color: rgb(78, 78, 78);
+}
+
 .field {
   display: grid;
   gap: 0;
@@ -11,6 +15,7 @@
   width: 30px;
   height: 30px;
   margin: 0;
+  background: #201a00
 }
 
 .cover {

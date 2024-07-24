@@ -7,7 +7,7 @@ export default function Header({ onDifficultyChange }) {
     { difficulty: "hard", squares: 400, bombs: 63 },
   ]);
 
-  const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("easy");
 
   useEffect(() => {
     const selectedObject = difficulties.find(
@@ -22,7 +22,7 @@ export default function Header({ onDifficultyChange }) {
 
   return (
     <header className="header">
-      <label htmlFor="difficulty-select">Difficult: </label>
+      <label htmlFor="difficulty-select">Difficulty:</label>
       <select
         id="difficulty-select"
         value={selectedDifficulty}

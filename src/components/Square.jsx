@@ -21,7 +21,7 @@ export default function Square({
         <div
           className="cover"
           style={{
-            background: "#16ff16",
+            background: "#41b325",
             zIndex: exposed ? "-1" : "1",
           }}
         >

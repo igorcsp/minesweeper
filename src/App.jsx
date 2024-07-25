@@ -2,77 +2,76 @@ import { useEffect, useState } from "react";
 import Field from "./components/Field";
 import Header from "./components/Header";
 import Square from "./components/Square";
-
-/*
-  To do:
-  - Fazer com que o primeiro clique seja sempre um grande espaço vazio
-  - Deixar com um CSS bonitin
-*/
+import ConfettiExplosion from "react-confetti-explosion";
 
 function App() {
   const [field, setField] = useState([]);
   const [difficulty, setDifficulty] = useState({
-    difficulty: "easy",
+    difficulty: "fácil",
     squares: 64,
     bombs: 10,
   });
   const [gameOver, setGameOver] = useState(false);
   const [gameWon, setGameWon] = useState(false);
   const [isFirstClick, setIsFirstClick] = useState(true);
+  const [confettiExplosion, setConfettiExplosion] = useState(false);
 
   useEffect(() => {
     initGame();
   }, [difficulty]);
 
-  const shuffle = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  };
+  const initGameAfterFirstClick = (firstClickId) => {
+    const width = Math.sqrt(difficulty.squares);
+    const safeArea = [firstClickId, ...getNeighbors(firstClickId, width)];
 
-  const bombedSquares = () => {
-    let arr = [];
-    for (let i = 0; i < difficulty.bombs; i++) {
-      arr.push(true);
+    let bombedSquaresArr = new Array(difficulty.squares).fill(false);
+    let bombsPlaced = 0;
+
+    while (bombsPlaced < difficulty.bombs) {
+      const randomIndex = Math.floor(Math.random() * difficulty.squares);
+      if (!bombedSquaresArr[randomIndex] && !safeArea.includes(randomIndex)) {
+        bombedSquaresArr[randomIndex] = true;
+        bombsPlaced++;
+      }
     }
-    for (let i = 0; i < difficulty.squares - difficulty.bombs; i++) {
-      arr.push(false);
-    }
-    return shuffle(arr);
+
+    let newField = bombedSquaresArr.map((hasBomb, index) => ({
+      id: index,
+      hasBomb,
+      bombsAround: "",
+      exposed: false,
+      flagged: false,
+    }));
+
+    setConfettiExplosion(false);
+    newField = numberOfBombsAround(newField);
+    setField(newField);
+    setIsFirstClick(false);
+    exposeSquaresWithoutBombs(firstClickId);
   };
 
   const initGame = () => {
-    const amountOfSquares = difficulty.squares;
-    const bombedSquaresArr = bombedSquares();
-    const arrayOfFalses = Array(difficulty.squares).fill(false);
-
-    let arr = [];
-    for (let i = 0; i < amountOfSquares; i++) {
-      const squareObj = {
-        id: i,
-        hasBomb: bombedSquaresArr[i],
+    const emptyField = Array(difficulty.squares)
+      .fill(null)
+      .map((_, index) => ({
+        id: index,
+        hasBomb: false,
         bombsAround: "",
-        exposed: arrayOfFalses[i],
-        flagged: arrayOfFalses[i],
-      };
-      arr.push(squareObj);
-    }
-    setField(numberOfBombsAround(arr));
+        exposed: false,
+        flagged: false,
+      }));
+
+    setConfettiExplosion(false);
+    setField(emptyField);
+    setIsFirstClick(true);
+    setGameOver(false);
+    setGameWon(false);
   };
 
   const handleDifficultyChange = (difficultyObject) => {
     setDifficulty(difficultyObject);
   };
 
-  const handleExposure = (id) => {
-    if (field[id].flagged) return;
-
-    exposeSquaresWithoutBombs(id);
-
-    checkWinOrLose();
-  };
   const checkWinOrLose = () => {
     const bombExposed = field.some(
       (square) => square.exposed && square.hasBomb
@@ -84,15 +83,29 @@ function App() {
     if (bombExposed) {
       setGameOver(true);
       setGameWon(false);
-      console.log("Você perdeu!");
     } else if (allSafeSquaresExposed) {
       setGameOver(true);
       setGameWon(true);
-      console.log("Você ganhou!");
+      setConfettiExplosion(true);
     }
   };
 
+  const handleExposure = (id) => {
+    if (gameOver) return;
+    if (field[id].flagged) return;
+
+    if (isFirstClick) {
+      initGameAfterFirstClick(id);
+    } else {
+      exposeSquaresWithoutBombs(id);
+    }
+
+    checkWinOrLose();
+  };
+
   const handleFlag = (id) => {
+    if (gameOver) return;
+
     setField((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, flagged: !item.flagged } : item
@@ -174,8 +187,13 @@ function App() {
 
   return (
     <div className="app">
+      {confettiExplosion && <ConfettiExplosion zIndex={3} />}
       <h1>MineSweeper</h1>
-      <Header onDifficultyChange={handleDifficultyChange} />
+      <Header
+        onDifficultyChange={handleDifficultyChange}
+        squares={difficulty.squares}
+        initGame={() => initGame()}
+      />
       <Field squares={difficulty.squares}>
         {field.map((item) => (
           <Square
@@ -190,8 +208,6 @@ function App() {
           </Square>
         ))}
       </Field>
-
-      <button onClick={initGame}>Restart game</button>
     </div>
   );
 }

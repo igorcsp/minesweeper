@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 
-export default function Header({ onDifficultyChange }) {
+export default function Header({ onDifficultyChange, squares, initGame }) {
   const [difficulties] = useState([
-    { difficulty: "easy", squares: 64, bombs: 10 },
-    { difficulty: "medium", squares: 196, bombs: 40 },
-    { difficulty: "hard", squares: 400, bombs: 63 },
+    { difficulty: "fácil", squares: 64, bombs: 10 },
+    { difficulty: "médio", squares: 196, bombs: 40 },
+    { difficulty: "difícil", squares: 400, bombs: 99 },
   ]);
 
-  const [selectedDifficulty, setSelectedDifficulty] = useState("easy");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("médio");
 
   useEffect(() => {
     const selectedObject = difficulties.find(
@@ -21,8 +21,12 @@ export default function Header({ onDifficultyChange }) {
   };
 
   return (
-    <header className="header">
-      <label htmlFor="difficulty-select">Difficulty:</label>
+    <header
+      className="header"
+      style={{
+        width: `calc(${Math.sqrt(squares)} * 20px)`,
+      }}
+    >
       <select
         id="difficulty-select"
         value={selectedDifficulty}
@@ -34,6 +38,9 @@ export default function Header({ onDifficultyChange }) {
           </option>
         ))}
       </select>
+      <button className="restart-btn" onClick={() => initGame()}>
+        Restart game
+      </button>
     </header>
   );
 }

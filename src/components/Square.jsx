@@ -6,7 +6,6 @@ export default function Square({
   handleExposure,
   handleFlag,
 }) {
-
   return (
     <>
       <button
@@ -14,12 +13,15 @@ export default function Square({
         onClick={() => handleExposure()}
         onAuxClick={() => handleFlag()}
         onContextMenu={(e) => e.preventDefault()}
-        style={{ background: hasBomb ? "#201a00" : "#a89128" }}
+        style={{
+          background: hasBomb ? "#201a00" : "#a89128",
+          border: "0.5px solid #6b4e10",
+        }}
       >
         <div
           className="cover"
           style={{
-            background: "green",
+            background: "#16ff16",
             zIndex: exposed ? "-1" : "1",
           }}
         >

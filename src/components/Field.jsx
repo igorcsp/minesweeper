@@ -4,7 +4,7 @@ export default function Field({ children, squares }) {
       className="field"
       style={{
         gridTemplateColumns: `repeat(${Math.sqrt(squares)}, 1fr)`,
-        width: `calc(${Math.sqrt(squares)} * 30px)`,
+        width: `calc(${Math.sqrt(squares)} * 20px)`,
       }}
     >
       {children}

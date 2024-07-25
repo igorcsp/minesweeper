@@ -5,8 +5,7 @@ import Square from "./components/Square";
 
 /*
   To do:
-  - Criar condição de vitória e derrota
-  - Arrumar a flag para desabilitar a possibilidade de expor o campo, quando flagged === true
+  - Fazer com que o primeiro clique seja sempre um grande espaço vazio
   - Deixar com um CSS bonitin
 */
 
@@ -17,18 +16,21 @@ function App() {
     squares: 64,
     bombs: 10,
   });
+  const [gameOver, setGameOver] = useState(false);
+  const [gameWon, setGameWon] = useState(false);
+  const [isFirstClick, setIsFirstClick] = useState(true);
 
   useEffect(() => {
     initGame();
   }, [difficulty]);
 
-  function shuffle(array) {
+  const shuffle = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
-  }
+  };
 
   const bombedSquares = () => {
     let arr = [];
@@ -64,16 +66,38 @@ function App() {
     setDifficulty(difficultyObject);
   };
 
+  const handleExposure = (id) => {
+    if (field[id].flagged) return;
+
+    exposeSquaresWithoutBombs(id);
+
+    checkWinOrLose();
+  };
+  const checkWinOrLose = () => {
+    const bombExposed = field.some(
+      (square) => square.exposed && square.hasBomb
+    );
+    const allSafeSquaresExposed = field.every(
+      (square) => square.hasBomb || square.exposed
+    );
+
+    if (bombExposed) {
+      setGameOver(true);
+      setGameWon(false);
+      console.log("Você perdeu!");
+    } else if (allSafeSquaresExposed) {
+      setGameOver(true);
+      setGameWon(true);
+      console.log("Você ganhou!");
+    }
+  };
+
   const handleFlag = (id) => {
     setField((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, flagged: !item.flagged } : item
       )
     );
-  };
-
-  const handleExposure = (id) => {
-    exposeSquaresWithoutBombs(id);
   };
 
   const exposeSquaresWithoutBombs = (id) => {
@@ -84,7 +108,10 @@ function App() {
 
       fieldCopy[squareId].exposed = true;
 
-      if (fieldCopy[squareId].bombsAround === "") {
+      if (
+        fieldCopy[squareId].bombsAround === "" &&
+        !fieldCopy[squareId].hasBomb
+      ) {
         neighbors.forEach((neighborId) => {
           if (
             !fieldCopy[neighborId].exposed &&

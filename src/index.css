@@ -1,5 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
 body {
   background-color: rgb(78, 78, 78);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
 }
 
 .field {
@@ -11,15 +15,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid black;
   width: 30px;
   height: 30px;
   margin: 0;
-  background: #201a00
+  background: #a89128
 }
 
 .cover {
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: 29px;
+  height: 29px;
+}
+
+button {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  border: 1px solid black;
 }

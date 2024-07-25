@@ -1,5 +1,3 @@
-const flag = "🚩";
-
 export default function Square({
   children,
   hasBomb,
@@ -8,23 +6,25 @@ export default function Square({
   handleExposure,
   handleFlag,
 }) {
+
   return (
     <>
-      <div className="cover" />
-      <div
+      <button
         className="square"
         onClick={() => handleExposure()}
         onAuxClick={() => handleFlag()}
         onContextMenu={(e) => e.preventDefault()}
-        style={{ background: hasBomb ? "#201a00" : "#725d00" }}
+        style={{ background: hasBomb ? "#201a00" : "#a89128" }}
       >
         <div
           className="cover"
           style={{
-            background: flagged ? "red" : "green",
+            background: "green",
             zIndex: exposed ? "-1" : "1",
           }}
-        ></div>
+        >
+          {flagged ? "🚩" : ""}
+        </div>
         {children === 1 ? (
           <p style={{ color: "blue" }}>{children}</p>
         ) : children === 2 ? (
@@ -42,7 +42,7 @@ export default function Square({
         ) : (
           <p>{children}</p>
         )}
-      </div>
+      </button>
     </>
   );
 }

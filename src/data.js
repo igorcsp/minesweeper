@@ -1,9 +1,10 @@
-const minesweeper = {
-    id: 1,
-    hasBomb: false,
-    bombsAround: 3,
-    exposed: false
-}
+const squareObj = {
+    id: n,
+    hasBomb: true, // false
+    bombsAround: "", // ou n
+    exposed: false,
+    flagged: false
+};
 
 const field = {
     squaresHard: 400, // 20
